@@ -123,7 +123,7 @@ export class AddTaskComponent {
     this.toastService.triggerToast(
       'Task added to board',
       'create',
-      'assets/icons/navbar/board.svg'
+      'assets/icons/navbar/board.svg',
     );
     this.taskCreated.emit();
     setTimeout(() => {
@@ -184,7 +184,7 @@ export class AddTaskComponent {
    */
   private getSelectedPriority(): 'urgent' | 'medium' | 'low' {
     const activeBtn = this.taskDataService.priorityButtons.find(
-      (btn) => btn.btnActive
+      (btn) => btn.btnActive,
     );
     return (activeBtn?.priority.toLowerCase() || 'medium') as
       | 'urgent'
