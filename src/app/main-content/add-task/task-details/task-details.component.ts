@@ -104,7 +104,7 @@ export class TaskDetailsComponent {
     return this.contactsService.contacts.filter((contact) =>
       contact.name
         .toLowerCase()
-        .includes(this.searchedContactName.toLowerCase())
+        .includes(this.searchedContactName.toLowerCase()),
     );
   }
 
@@ -116,7 +116,7 @@ export class TaskDetailsComponent {
       const index = this.taskData.priorityButtons.findIndex(
         (btn) =>
           btn.priority.toLowerCase() ===
-          this.tasksService.tasks[this.taskIndex()].priority.toLowerCase()
+          this.tasksService.tasks[this.taskIndex()].priority.toLowerCase(),
       );
       if (index !== -1) {
         this.setPriority(index);
@@ -139,7 +139,7 @@ export class TaskDetailsComponent {
   /** Activates the priority button at the given index. */
   setPriority(index: number) {
     this.taskData.priorityButtons.forEach(
-      (btn, i) => (btn.btnActive = i === index)
+      (btn, i) => (btn.btnActive = i === index),
     );
   }
 
@@ -149,13 +149,13 @@ export class TaskDetailsComponent {
    */
   toggleAssignedContacts(contactId: any) {
     const exists = this.taskData.assignedTo.some(
-      (contact) => contact.contactId === contactId
+      (contact) => contact.contactId === contactId,
     );
     if (!exists) {
       this.taskData.assignedTo.push({ contactId });
     } else {
       this.taskData.assignedTo = this.taskData.assignedTo.filter(
-        (contact) => contact.contactId !== contactId
+        (contact) => contact.contactId !== contactId,
       );
     }
   }
@@ -184,7 +184,7 @@ export class TaskDetailsComponent {
   /** Removes a contact from assigned list */
   removeAssignedContact(contactId: string): void {
     this.taskData.assignedTo = this.taskData.assignedTo.filter(
-      (c) => c.contactId !== contactId
+      (c) => c.contactId !== contactId,
     );
     this.hoveredContact = undefined;
   }
@@ -198,7 +198,7 @@ export class TaskDetailsComponent {
   /** Filters category list by search input */
   filteredCategories() {
     return this.taskData.taskCategories.filter((category) =>
-      category.toLowerCase().includes(this.searchedCategoryName.toLowerCase())
+      category.toLowerCase().includes(this.searchedCategoryName.toLowerCase()),
     );
   }
 

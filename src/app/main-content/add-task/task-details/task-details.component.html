@@ -1,34 +1,37 @@
 <div class="form-group">
   <label>Priority</label>
   <div class="priority-buttons-wrapper">
-    @for(prioBtn of taskData.priorityButtons; track prioBtn; let index = $index)
-    {
-    <button
-      class="priority-button"
-      [class]="prioBtn.btnActive ? 'btnActive' : 'btnInActive'"
-      [style.backgroundColor]="prioBtn.btnActive ? prioBtn.colorActive : 'white'"
-      (click)="setPriority(index); $event.preventDefault()"
-    >
-      {{ prioBtn.priority }}
-      <img
-        [src]="prioBtn.btnActive ? prioBtn.imgActive : prioBtn.imgInactive"
-        [alt]="prioBtn.priority"
-      />
-    </button>
+    @for (prioBtn of taskData.priorityButtons; track prioBtn; let index = $index) {
+      <button
+        type="button"
+        class="priority-button"
+        [class]="prioBtn.btnActive ? 'btnActive' : 'btnInActive'"
+        [style.backgroundColor]="prioBtn.btnActive ? prioBtn.colorActive : 'white'"
+        (click)="setPriority(index); $event.preventDefault()"
+        [attr.aria-pressed]="prioBtn.btnActive"
+      >
+        {{ prioBtn.priority }}
+        <img
+          [src]="prioBtn.btnActive ? prioBtn.imgActive : prioBtn.imgInactive"
+          [alt]="prioBtn.priority"
+        />
+      </button>
     }
   </div>
 </div>
 
 <div class="form-group">
-
   <cdk-accordion
     class="dropdown-list-container form-group"
     id="assigned-to"
-    (click)="$event.stopPropagation()"
+    (click)="$event.stopPropagation()
+"
   >
     <label for="assigned-to">Assigned to</label>
-    <cdk-accordion-item class="form-control" #accordionItem="cdkAccordionItem">
-
+    <cdk-accordion-item
+      class="form-control"
+      #accordionItem="cdkAccordionItem"
+    >
       <span
         class="toggle-dropdown-list"
         (click)="accordionItem.toggle(); categoryAccordionItem.close()"
@@ -37,28 +40,38 @@
           type="search"
           class="form-control"
           [class]="accordionItem.expanded ? 'drop-down-active' : ''"
-          [placeholder]="accordionItem.expanded ? 'Search...' : 'Select Contacts to assign'"
+          [placeholder]="
+            accordionItem.expanded
+              ? 'Search...'
+              : 'Select Contacts to assign'
+          "
           (input)="searchContact($event); accordionItem.open()"
+          aria-label="Assigned to"
         />
         <img
           src="./assets/icons/kanban/drop_down_open.svg"
           [style.transform]="
-          accordionItem.expanded ? 'rotate(180deg)' : 'rotate(0deg)'"
+            accordionItem.expanded ? 'rotate(180deg)' : 'rotate(0deg)'
+          "
         />
       </span>
 
-      @if(accordionItem.expanded) {
+      @if (accordionItem.expanded) {
         <ul
           class="dropdown-list"
           role="region"
+          aria-label="Available contacts"
           [style.display]="accordionItem.expanded ? '' : 'none'"
         >
-          @for (contact of filteredContacts(); track contact; let index = $index)
-          {
+          @for (contact of filteredContacts(); track contact; let index = $index) {
             <li
               class="contact-wrapper"
               (click)="toggleAssignedContacts(contact.id)"
               [style.backgroundColor]="isContactAssigned(contact.id) ? '#091931' : ''"
+              role="checkbox"
+              tabindex="0"
+              [attr.aria-checked]="isContactAssigned(contact.id)"
+              (keydown.enter)="toggleAssignedContacts(contact.id)"
             >
               <div class="single-contact">
                 <div
@@ -73,34 +86,41 @@
                 </p>
               </div>
               <img
-                [src]="isContactAssigned(contact.id)
-                  ? './assets/icons/kanban/checkbox_checked.svg'
-                  : './assets/icons/kanban/checkbox_unchecked.svg'"
+                [src]="
+                  isContactAssigned(contact.id)
+                    ? './assets/icons/kanban/checkbox_checked.svg'
+                    : './assets/icons/kanban/checkbox_unchecked.svg'
+                "
+                alt=""
+                aria-hidden="true"
               />
             </li>
           }
         </ul>
       }
-
     </cdk-accordion-item>
   </cdk-accordion>
 
   <div class="assigned-contacts">
-
     @for (contact of taskData.assignedTo; track contact.contactId) {
       @if (contactsService.contactName(contact.contactId)) {
-      <div
-        class="contact-initials"
-        [style.backgroundColor]="contactsService.contactColor(contact.contactId)"
-        (mouseenter)="startContactHover(contact.contactId)"
-        (mousemove)="moveContactHover($event)"
-        (mouseleave)="endContactHover()"
-        (click)="removeAssignedContact(hoveredContact)"
-      >
-        {{ contactsService.nameInitials(contact.contactId) }}
-      </div>
+        <div
+          class="contact-initials"
+          [style.backgroundColor]="contactsService.contactColor(contact.contactId)"
+          (mouseenter)="startContactHover(contact.contactId)"
+          (mousemove)="moveContactHover($event)"
+          (mouseleave)="endContactHover()"
+          (click)="removeAssignedContact(contact.contactId)"
+          role="button"
+          tabindex="0"
+          [attr.aria-label]="'Remove ' + contactsService.contactName(contact.contactId)"
+          (keydown.enter)="removeAssignedContact(contact.contactId)"
+        >
+          {{ contactsService.nameInitials(contact.contactId) }}
+        </div>
+      }
     }
-    } @if (hoveredContact) {
+    @if (hoveredContact) {
       <div
         class="contact-name-info"
         [style.backgroundColor]="contactsService.contactColor(hoveredContact)"
@@ -119,7 +139,10 @@
     id="category"
     (click)="$event.stopPropagation()"
   >
-    <label for="category">Category <span>*</span></label>
+    <label for="category">
+      Category
+      <span>*</span>
+    </label>
     <cdk-accordion-item
       class="form-control"
       #categoryAccordionItem="cdkAccordionItem"
@@ -139,8 +162,10 @@
                 : 'Search...'
               : taskData.selectedCategory
                 ? taskData.selectedCategory
-                : 'Select task category'"
+                : 'Select task category'
+          "
           (input)="searchCategory($event); categoryAccordionItem.open()"
+          aria-label="Category"
         />
         <img
           src="./assets/icons/kanban/drop_down_open.svg"
@@ -149,32 +174,37 @@
           "
         />
       </span>
-      @if(categoryAccordionItem.expanded) {
-      <ul
-        class="dropdown-list"
-        role="region"
-        [style.display]="categoryAccordionItem.expanded ? '' : 'none'"
-      >
-        @for (category of filteredCategories(); track category; let index =
-        $index) {
-        <li
-          class="category-wrapper"
-          (click)="setCategory(index); categoryAccordionItem.close()"
-          [style.backgroundColor]="
-            taskData.selectedCategory === filteredCategories()[index]
-              ? '#091931'
-              : ''
-          "
-          [style.color]="
-            taskData.selectedCategory === filteredCategories()[index]
-              ? 'white'
-              : ''
-          "
+      @if (categoryAccordionItem.expanded) {
+        <ul
+          class="dropdown-list"
+          role="region"
+          aria-label="Available categories"
+          [style.display]="categoryAccordionItem.expanded ? '' : 'none'"
         >
-          <p>{{ category }}</p>
-        </li>
-        }
-      </ul>
+          @for (category of filteredCategories(); track category; let index = $index) {
+            <li
+              class="category-wrapper"
+              (click)="setCategory(index); categoryAccordionItem.close()"
+              [style.backgroundColor]="
+                taskData.selectedCategory === filteredCategories()[index]
+                  ? '#091931'
+                  : ''
+              "
+              [style.color]="
+                taskData.selectedCategory === filteredCategories()[index]
+                  ? 'white'
+                  : ''
+              "
+              role="button"
+              tabindex="0"
+              (keydown.enter)="setCategory(index); categoryAccordionItem.close()"
+            >
+              <p>
+                {{ category }}
+              </p>
+            </li>
+          }
+        </ul>
       }
     </cdk-accordion-item>
   </cdk-accordion>
@@ -203,70 +233,98 @@
             : './assets/icons/kanban/add.svg'
         "
         (click)="subtaskText ? clearSubtask() : focusInput(subtaskInput)"
+        role="button"
+        tabindex="0"
+        [attr.aria-label]="
+          subtaskText ? 'Clear subtask input' : 'Focus subtask input'
+        "
+        (keydown.enter)="subtaskText ? clearSubtask() : focusInput(subtaskInput)"
       />
       @if (subtaskText) {
-      <div class="v-line">|</div>
-      <img
-        [src]="'./assets/icons/kanban/check.svg'"
-        (click)="addSubtask()"
-        alt="Check Button"
-      />
+        <div class="v-line">|</div>
+        <img
+          [src]="'./assets/icons/kanban/check.svg'"
+          (click)="addSubtask()"
+          alt="Add subtask"
+          role="button"
+          tabindex="0"
+          aria-label="Add subtask"
+          (keydown.enter)="addSubtask()"
+        />
       }
     </div>
 
     <ul class="subtask-container">
       @for (subtask of taskData.subtasksContainer; track subtask) {
-      <li
-        class="subtask-item"
-        (mouseenter)="subtask.isHovered = true"
-        (mouseleave)="subtask.isHovered = false"
-        [style.backgroundColor]="subtask.isHovered ? '#e8e8e8' : ''"
-      >
-        @if (!subtask.isEditing) {
-        <p class="subtask-text">{{"• " + subtask.text }}</p>
-        } @else {
-        <input
-          [(ngModel)]="inputFieldSubT"
-          name="subtaskText"
-          [value]="subtask.text"
-          maxlength="80"
-          (keydown.enter)="subtask.isEditing = false"
-          class="subtask-edit-input"
-          #inputFieldSubTask
-        />
-        }
-
-        <div
-          class="subtask-item-icons"
-          [style.display]="subtask.isHovered ? 'flex' : 'none'"
+        <li
+          class="subtask-item"
+          (mouseenter)="subtask.isHovered = true"
+          (mouseleave)="subtask.isHovered = false"
+          [style.backgroundColor]="subtask.isHovered ? '#e8e8e8' : ''"
         >
           @if (!subtask.isEditing) {
-          <img
-            [src]="'./assets/icons/kanban/edit.svg'"
-            (click)="editSubtask(subtask)"
-            alt="Edit"
-          />
-          <div class="v-line">|</div>
-          <img
-            [src]="'./assets/icons/kanban/delete.svg'"
-            (click)="deleteSubtask(subtask)"
-            alt="Edit"
-          />
+            <p class="subtask-text">
+              {{"• " + subtask.text }}
+            </p>
           } @else {
-          <img
-            [src]="'./assets/icons/kanban/check.svg'"
-            (click)="editCheckSubtask(subtask)"
-            alt="Edit"
-          />
-          <div class="v-line">|</div>
-          <img
-            [src]="'./assets/icons/kanban/delete.svg'"
-            (click)="deleteSubtask(subtask)"
-            alt="Edit"
-          />
+            <input
+              [(ngModel)]="inputFieldSubT"
+              name="subtaskText"
+              [value]="subtask.text"
+              maxlength="80"
+              (keydown.enter)="subtask.isEditing = false"
+              class="subtask-edit-input"
+              #inputFieldSubTask
+            />
           }
-        </div>
-      </li>
+
+          <div
+            class="subtask-item-icons"
+            [style.display]="subtask.isHovered ? 'flex' : 'none'"
+          >
+            @if (!subtask.isEditing) {
+              <img
+                [src]="'./assets/icons/kanban/edit.svg'"
+                (click)="editSubtask(subtask)"
+                alt="Edit subtask"
+                role="button"
+                tabindex="0"
+                aria-label="Edit subtask"
+                (keydown.enter)="editSubtask(subtask)"
+              />
+              <div class="v-line">|</div>
+              <img
+                [src]="'./assets/icons/kanban/delete.svg'"
+                (click)="deleteSubtask(subtask)"
+                alt="Delete subtask"
+                role="button"
+                tabindex="0"
+                aria-label="Delete subtask"
+                (keydown.enter)="deleteSubtask(subtask)"
+              />
+            } @else {
+              <img
+                [src]="'./assets/icons/kanban/check.svg'"
+                (click)="editCheckSubtask(subtask)"
+                alt="Confirm subtask edit"
+                role="button"
+                tabindex="0"
+                aria-label="Confirm subtask edit"
+                (keydown.enter)="editCheckSubtask(subtask)"
+              />
+              <div class="v-line">|</div>
+              <img
+                [src]="'./assets/icons/kanban/delete.svg'"
+                (click)="deleteSubtask(subtask)"
+                alt="Delete subtask"
+                role="button"
+                tabindex="0"
+                aria-label="Delete subtask"
+                (keydown.enter)="deleteSubtask(subtask)"
+              />
+            }
+          </div>
+        </li>
       }
     </ul>
   </div>
