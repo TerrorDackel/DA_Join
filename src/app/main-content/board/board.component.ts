@@ -39,13 +39,11 @@ import { ViewChildren, ElementRef, QueryList } from '@angular/core';
     ]),
   ],
 })
-
 /**
  * The `BoardComponent` represents a Kanban-like task board that supports
  * task filtering, drag-and-drop reordering, responsive behavior, and task dialogs.
  */
 export class BoardComponent {
-
   tasksService = inject(TasksService);
   singleTaskDataService = inject(SingleTaskDataService);
   @ViewChildren('taskList') taskLists!: QueryList<ElementRef<HTMLElement>>;
@@ -67,7 +65,7 @@ export class BoardComponent {
   /** Array of task statuses used to connect drop lists */
   connectedDropLists = this.boardColumns.map((col) => col.taskStatus);
 
-  /** Closes all open dialogs and resets selection state. */
+  /** Closes all open dialogs and resets selection state (click outside / close event). */
   @HostListener('click')
   closeTaskDialog(): void {
     this.showTaskDialog = false;
@@ -76,6 +74,11 @@ export class BoardComponent {
     this.selectedTask = null;
   }
 
+  /** Closes dialogs on Escape key for accessibility. */
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    this.closeTaskDialog();
+  }
 
   /** Called on window resize; updates mobile flag and shadow UI. */
   @HostListener('window:resize')
@@ -121,7 +124,7 @@ export class BoardComponent {
       .some(
         (task) =>
           task.title.toLowerCase().includes(search) ||
-          task.description.toLowerCase().includes(search)
+          task.description.toLowerCase().includes(search),
       );
   }
 
@@ -134,7 +137,7 @@ export class BoardComponent {
       moveItemInArray(
         event.container.data,
         event.previousIndex,
-        event.currentIndex
+        event.currentIndex,
       );
     } else {
       this.placeItemToNewColumn(event);
@@ -154,7 +157,7 @@ export class BoardComponent {
       event.previousContainer.data,
       event.container.data,
       event.previousIndex,
-      event.currentIndex
+      event.currentIndex,
     );
   }
 
@@ -165,7 +168,7 @@ export class BoardComponent {
   updateAllScrollShadows(delay: number = 0): void {
     setTimeout(() => {
       this.taskLists.forEach((listRef) =>
-        this.onTaskListScrollShadow(listRef.nativeElement)
+        this.onTaskListScrollShadow(listRef.nativeElement),
       );
     }, delay);
   }
@@ -198,7 +201,10 @@ export class BoardComponent {
     this.showTaskDialog = true;
     this.showAddTaskDialog = true;
     this.isAddTaskDialog = true;
-    this.singleTaskDataService.taskStatus = taskStatus as | 'toDo' | 'inProgress' | 'feedback';
+    this.singleTaskDataService.taskStatus = taskStatus as
+      | 'toDo'
+      | 'inProgress'
+      | 'feedback';
     this.singleTaskDataService.editModeActive = false;
   }
 
@@ -223,7 +229,10 @@ export class BoardComponent {
     } else {
       boardColumn.classList.remove('scrolled-top');
     }
-    if (Math.ceil(taskList.scrollTop + taskList.offsetHeight) < Math.floor(taskList.scrollHeight)) {
+    if (
+      Math.ceil(taskList.scrollTop + taskList.offsetHeight) <
+      Math.floor(taskList.scrollHeight)
+    ) {
       boardColumn.classList.add('scrolled-bottom');
     } else {
       boardColumn.classList.remove('scrolled-bottom');
@@ -266,5 +275,4 @@ export class BoardComponent {
       this.tasksService.updateTask(task);
     }
   }
-
 }

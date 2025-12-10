@@ -1,111 +1,174 @@
-<section class="board-section">
+<section
+  class="board-section"
+  aria-labelledby="board-title"
+>
   <div class="board-header">
     <div class="title-button">
-      <h1>Board</h1>
+      <h1 id="board-title">
+        Board
+      </h1>
       <button
         class="add-task-btn-respo"
+        type="button"
         (click)="openAddTaskDialog(); $event.stopPropagation()"
+        aria-label="Add task"
       >
-        <img src="./assets/icons/kanban/add_white.svg" alt="Add Icon" />
+        <img
+          src="./assets/icons/kanban/add_white.svg"
+          alt=""
+          aria-hidden="true"
+        />
       </button>
     </div>
 
     <div class="search-add-container">
       <div class="search-input-container">
-        <input [(ngModel)]="searchText" type="search" placeholder="Find Task" />
+        <input
+          [(ngModel)]="searchText"
+          type="search"
+          placeholder="Find Task"
+          aria-label="Find task"
+        />
         <div class="search-icon">
-          <img src="./assets/icons/kanban/search.png" alt="Search Icon" />
+          <img
+            src="./assets/icons/kanban/search.png"
+            alt=""
+            aria-hidden="true"
+          />
         </div>
       </div>
       <button
         class="add-task-btn"
+        type="button"
         (click)="openAddTaskDialog(); $event.stopPropagation()"
       >
         Add Task
-        <img src="./assets/icons/kanban/add_white.svg" alt="Add Icon" />
+        <img
+          src="./assets/icons/kanban/add_white.svg"
+          alt=""
+          aria-hidden="true"
+        />
       </button>
     </div>
   </div>
 
-  <div class="board" #boardContainer>
+  <div
+    class="board"
+    #boardContainer
+  >
     @for (column of boardColumns; track column.title) {
-    <div
-      class="board-column"
-      cdkDropList
-      [id]="column.taskStatus"
-      [cdkDropListData]="filterTasksByCategory(column.taskStatus)"
-      [cdkDropListConnectedTo]="connectedDropLists"
-      (cdkDropListDropped)="drop($event)"
-    >
-      <div class="board-column-header">
-        <h3>{{ column.title }}</h3>
-        @if (column.title !== 'Done') {
-        <button
-          class="mini-button-add-board"
-          (mouseenter)="hoveredColumn = column.title"
-          (mouseleave)="hoveredColumn = ''"
-          (click)="addTaskWithStatus(column.taskStatus); $event.stopPropagation()"
-        >
-          <img
-            [src]="
-              hoveredColumn === column.title
-                ? './assets/icons/kanban/add_plus_blue.png'
-                : './assets/icons/kanban/add.svg'
-            "
-            alt="Add"
-          />
-        </button>
-        }
-      </div>
-
-      <ul
-        class="task-list"
-        #taskList
-        (scroll)="onTaskListScrollShadow(taskList)"
-        (scroll)="onTaskListScrollShadowMobile(taskList)"
+      <div
+        class="board-column"
+        cdkDropList
+        [id]="column.taskStatus"
+        [cdkDropListData]="filterTasksByCategory(column.taskStatus)"
+        [cdkDropListConnectedTo]="connectedDropLists"
+        (cdkDropListDropped)="drop($event)"
+        role="group"
+        [attr.aria-label]="column.title + ' column'"
       >
-        @if (filterTasksByCategory(column.taskStatus).length === 0 || !hasSearchResults(column.taskStatus, searchText)) {
-          <li class="no-tasks">No tasks {{ column.title }}</li>
-        } @else {
-          @for (task of filterTasksByCategory(column.taskStatus); track task.id) {
-            @if (task.title.toLowerCase().includes(searchText.toLowerCase()) || task.description.toLowerCase().includes(searchText.toLowerCase())) {
-              <li (click)="openTaskDialog(task); $event.stopPropagation()">
-                <app-task
-                  [taskData]="task"
-                  [searchRequest]="searchText"
-                  [searchTrigger]="searchActive"
-                  [cdkDragDisabled]="isMobile"
-                  cdkDrag
-                  (updateTaskType)="updateTaskColumn($event)"
-                  (taskClicked)="openTaskDialog($event)"
-                ></app-task>
-              </li>
+        <div class="board-column-header">
+          <h3>
+            {{ column.title }}
+          </h3>
+          @if (column.title !== 'Done') {
+            <button
+              class="mini-button-add-board"
+              type="button"
+              (mouseenter)="hoveredColumn = column.title"
+              (mouseleave)="hoveredColumn = ''"
+              (click)="addTaskWithStatus(column.taskStatus); $event.stopPropagation()"
+              [attr.aria-label]="'Add task to ' + column.title"
+            >
+              <img
+                [src]="
+                  hoveredColumn === column.title
+                    ? './assets/icons/kanban/add_plus_blue.png'
+                    : './assets/icons/kanban/add.svg'
+                "
+                alt=""
+                aria-hidden="true"
+              />
+            </button>
+          }
+        </div>
+
+        <ul
+          class="task-list"
+          #taskList
+          (scroll)="onTaskListScrollShadow(taskList)"
+          (scroll)="onTaskListScrollShadowMobile(taskList)"
+        >
+          @if (
+            filterTasksByCategory(column.taskStatus).length === 0 ||
+            !hasSearchResults(column.taskStatus, searchText)
+          ) {
+            <li class="no-tasks">
+              No tasks {{ column.title }}
+            </li>
+          } @else {
+            @for (task of filterTasksByCategory(column.taskStatus); track task.id) {
+              @if (
+                task.title.toLowerCase().includes(searchText.toLowerCase()) ||
+                task.description.toLowerCase().includes(searchText.toLowerCase())
+              ) {
+                <li
+                  (click)="openTaskDialog(task); $event.stopPropagation()"
+                  role="button"
+                  tabindex="0"
+                  (keydown.enter)="openTaskDialog(task); $event.stopPropagation()"
+                >
+                  <app-task
+                    [taskData]="task"
+                    [searchRequest]="searchText"
+                    [searchTrigger]="searchActive"
+                    [cdkDragDisabled]="isMobile"
+                    cdkDrag
+                    (updateTaskType)="updateTaskColumn($event)"
+                    (taskClicked)="openTaskDialog($event)"
+                  >
+                  </app-task>
+                </li>
+              }
             }
           }
-        }
-      </ul>
-    </div>
+        </ul>
+      </div>
     }
   </div>
 </section>
 
 @if (showTaskDialog && selectedTask) {
-<app-task-dialog
-  [@slideInOut]
-  [taskDataDialog]="selectedTask"
-  (close)="closeTaskDialog()"
->
-</app-task-dialog>
+  <app-task-dialog
+    [@slideInOut]
+    [taskDataDialog]="selectedTask"
+    (close)="closeTaskDialog()"
+    role="dialog"
+    aria-modal="true"
+  >
+  </app-task-dialog>
 } @else if (showAddTaskDialog) {
-<div class="overlay-container" [@slideInOut]>
-  <div class="overlay-content">
-    <div class="add-task-wrapper" (click)="$event.stopPropagation()">
-      <app-add-task
-        [isAddTaskDialog]="isAddTaskDialog"
-        (close)="showAddTaskDialog = false"
-      ></app-add-task>
+  <div
+    class="overlay-container"
+    [@slideInOut]
+    role="presentation"
+  >
+    <div
+      class="overlay-content"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Add task dialog"
+    >
+      <div
+        class="add-task-wrapper"
+        (click)="$event.stopPropagation()"
+      >
+        <app-add-task
+          [isAddTaskDialog]="isAddTaskDialog"
+          (close)="showAddTaskDialog = false"
+        >
+        </app-add-task>
+      </div>
     </div>
   </div>
-
-</div>
 }
