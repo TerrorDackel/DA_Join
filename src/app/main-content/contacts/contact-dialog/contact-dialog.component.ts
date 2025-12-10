@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Output, OnInit, OnDestroy, Input, inject } from '@angular/core';
+import { Component, EventEmitter, Output, OnInit, OnDestroy, Input, inject, HostListener } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ContactInterface } from '../../../interfaces/contact.interface';
 import { ContactsService } from '../../../services/contacts.service';
@@ -53,6 +53,14 @@ export class ContactDialogComponent implements OnInit, OnDestroy {
     this.animateIn = false;
     this.animateOut = false;
   }
+
+  /** Closes the dialog when Escape is pressed. */
+  @HostListener('document:keydown.escape', ['$event'])
+  handleEscape(event: KeyboardEvent | Event): void {
+    event.preventDefault();
+    this.onCancel();
+  }
+
 
   /** Sends a signal to the parent component to delete the contact. */
   onDelete(): void {

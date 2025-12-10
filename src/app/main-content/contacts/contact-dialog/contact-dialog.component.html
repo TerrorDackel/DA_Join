@@ -1,152 +1,247 @@
-<div class="dialog-overlay" (click)="onOverlayClick()">
-    <div class="dialog-content" [class.animate-in]="animateIn" [class.animate-out]="animateOut"
-        (click)="$event.stopPropagation()">
-        <div class="dialog-left">
-            <div class="mobile-close">
-                <button (click)="onOverlayClick()" class="close-button">
-                    <img src="./assets/icons/kanban/close_white.svg" alt="Close Icon" />
-                </button>
-            </div>
-            <img src="./assets/icons/navbar/logo.svg" alt="Join Logo" class="logo" />
-            @if (contactName) {
-            <h2>Edit contact</h2>
-            <div class="underline"></div>
-            } @else {
-            <h2>Add contact</h2>
-            <span>Tasks are better with a team!</span>
-            <div class="underline"></div>
-            }
-        </div>
-        <div class="dialog-right">
-            <div class="close-icon">
-                <button (click)="onOverlayClick()" class="close-button">
-                    <img src="./assets/icons/kanban/close.svg" alt="Close Icon" />
-                </button>
-            </div>
-            <div class="form-wrapper">
-                <div class="profile-ring">
-                    @if (contactIndex != undefined && this.contactsService.contacts[contactIndex]) {
-                    <div class="profile-placeholder"
-                        [style.backgroundColor]="this.contactsService.contacts[contactIndex].color">
-                        <div class="contact-initials">
-                            {{ this.contactsService.contacts[contactIndex].name.charAt(0).toUpperCase() }}
-                            {{ this.contactsService.lastInitial(contactIndex) }}
-                        </div>
-                    </div>
-                    } @else {
-                    <div class="profile-placeholder">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <mask id="mask0_305797_887" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0"
-                                width="24" height="24">
-                                <rect width="24" height="24" fill="#D9D9D9" />
-                            </mask>
-                            <g mask="url(#mask0_305797_887)">
-                                <path
-                                    d="M12 12C10.9 12 9.95833 11.6083 9.175 10.825C8.39167 10.0417 8 9.1 8 8C8 6.9 8.39167 5.95833 9.175 5.175C9.95833 4.39167 10.9 4 12 4C13.1 4 14.0417 4.39167 14.825 5.175C15.6083 5.95833 16 6.9 16 8C16 9.1 15.6083 10.0417 14.825 10.825C14.0417 11.6083 13.1 12 12 12ZM18 20H6C5.45 20 4.97917 19.8042 4.5875 19.4125C4.19583 19.0208 4 18.55 4 18V17.2C4 16.6333 4.14583 16.1125 4.4375 15.6375C4.72917 15.1625 5.11667 14.8 5.6 14.55C6.63333 14.0333 7.68333 13.6458 8.75 13.3875C9.81667 13.1292 10.9 13 12 13C13.1 13 14.1833 13.1292 15.25 13.3875C16.3167 13.6458 17.3667 14.0333 18.4 14.55C18.8833 14.8 19.2708 15.1625 19.5625 15.6375C19.8542 16.1125 20 16.6333 20 17.2V18C20 18.55 19.8042 19.0208 19.4125 19.4125C19.0208 19.8042 18.55 20 18 20ZM6 18H18V17.2C18 17.0167 17.9542 16.85 17.8625 16.7C17.7708 16.55 17.65 16.4333 17.5 16.35C16.6 15.9 15.6917 15.5625 14.775 15.3375C13.8583 15.1125 12.9333 15 12 15C11.0667 15 10.1417 15.1125 9.225 15.3375C8.30833 15.5625 7.4 15.9 6.5 16.35C6.35 16.4333 6.22917 16.55 6.1375 16.7C6.04583 16.85 6 17.0167 6 17.2V18ZM12 10C12.55 10 13.0208 9.80417 13.4125 9.4125C13.8042 9.02083 14 8.55 14 8C14 7.45 13.8042 6.97917 13.4125 6.5875C13.0208 6.19583 12.55 6 12 6C11.45 6 10.9792 6.19583 10.5875 6.5875C10.1958 6.97917 10 7.45 10 8C10 8.55 10.1958 9.02083 10.5875 9.4125C10.9792 9.80417 11.45 10 12 10Z"
-                                    fill="#FFFFFF" />
-                            </g>
-                        </svg>
-                    </div>
-                    }
-                </div>
-                <form (ngSubmit)="onCreate(contactIndex, contactForm)" #contactForm="ngForm">
-                    <div class="input-wrapper">
-                        <input type="text" placeholder="Name" [(ngModel)]="contactData.name" name="name" required
-                            (ngModelChange)="validateLive('name', contactForm)" #name="ngModel"
-                            [class.invalid]="name.invalid && name.touched || nameExists" />
-                        <img src="./assets/icons/contacts/contact_name.svg" alt="Name Icon" />
-                        <span class="error">
-                            @if (name.touched && name.invalid && name.errors?.['required']) {
-                            Please enter your name!
-                            } @else if (name.touched && name.errors?.['invalidFullName']) {
-                            Please enter a first and last name!
-                            } @else if (name.touched && name.errors?.['invalidCharacters']) {
-                            Only letters, spaces, hyphens and apostrophes are allowed!
-                            } @else if (nameExists) {
-                            A contact with this name already exists!
-                            } @else {
-                            &nbsp;
-                            }
-                        </span>
-                    </div>
-                    <div class="input-wrapper">
-                        <input type="email" placeholder="Email" [(ngModel)]="contactData.mail" name="mail" required
-                            pattern="^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$"
-                            (ngModelChange)="validateLive('mail', contactForm)" email #mail="ngModel"
-                            [class.invalid]="mail.invalid && mail.touched || mailExists" />
-                        <img src="./assets/icons/contacts/contact_mail.svg" alt="Mail Icon" />
-                        <span class="error">
-                            @if (mail.touched && mail.errors?.['required']) {
-                            Please enter your email address!
-                            } @else if (mail.touched && mail.errors?.['pattern']) {
-                            This is not a valid email address!
-                            } @else if (mailExists) {
-                            A contact with this email already exists!
-                            } @else {
-                            &nbsp;
-                            }
-                        </span>
-                    </div>
-                    <div class="input-wrapper">
-                        <input type="tel" name="phone" placeholder="Phone" required [(ngModel)]="contactData.phone"
-                            #phone="ngModel" (focus)="focusNumbers()" (blur)="resetNumb()"
-                            pattern="^(\+|00)?\d[\d\s\/\-]{4,}$" inputmode="numeric"
-                            [class.invalid]="phone.invalid && phone.touched" (keypress)="onlyNumbers($event)" />
-                        <img src="./assets/icons/contacts/contact_phone.svg" alt="Phone Icon" />
-                        <span class="error">
-                            @if (phone.touched && phone.errors?.['required']) {
-                            Please enter your phone number!
-                            } @else {
-                            &nbsp;
-                            }
-                        </span>
-                    </div>
-                    <div class="buttons">
-                        @if (contactIndex == undefined) {
-                        <button class="button-cancel" type="button" (click)="onCancel()">
-                            Cancel
-                            <svg class="icon-cancel" width="14" height="14" viewBox="0 0 14 14"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path
-                                    d="M7.14434 8.40005L2.24434 13.3C2.061 13.4834 1.82767 13.575 1.54434 13.575C1.261 13.575 1.02767 13.4834 0.844336 13.3C0.661003 13.1167 0.569336 12.8834 0.569336 12.6C0.569336 12.3167 0.661003 12.0834 0.844336 11.9L5.74434 7.00005L0.844336 2.10005C0.661003 1.91672 0.569336 1.68338 0.569336 1.40005C0.569336 1.11672 0.661003 0.883382 0.844336 0.700049C1.02767 0.516715 1.261 0.425049 1.54434 0.425049C1.82767 0.425049 2.061 0.516715 2.24434 0.700049L7.14434 5.60005L12.0443 0.700049C12.2277 0.516715 12.461 0.425049 12.7443 0.425049C13.0277 0.425049 13.261 0.516715 13.4443 0.700049C13.6277 0.883382 13.7193 1.11672 13.7193 1.40005C13.7193 1.68338 13.6277 1.91672 13.4443 2.10005L8.54434 7.00005L13.4443 11.9C13.6277 12.0834 13.7193 12.3167 13.7193 12.6C13.7193 12.8834 13.6277 13.1167 13.4443 13.3C13.261 13.4834 13.0277 13.575 12.7443 13.575C12.461 13.575 12.2277 13.4834 12.0443 13.3L7.14434 8.40005Z"
-                                    fill="#2A3647" />
-                            </svg>
-                        </button>
-                        } @else {
-                        <button class="button-delete" type="button" (click)="onDelete()">
-                            Delete
-                        </button>
-                        }
-                        @if (contactIndex == undefined) {
-                        <button class="button-create" type="submit"
-                            [ngClass]="{'active': isFormValid,'checkmark': isCheckmarkVisible && !isFormValid,'disabled': !isCheckmarkVisible && !isFormValid}"
-                            [disabled]="!isFormValid">
-                            Create contact
-                            @if (isCheckmarkVisible || isFormValid) {
-                            <svg class="icon-done" width="38" height="30" viewBox="0 0 38 30" fill="none"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path d="M4.02832 15.0001L15.2571 26.0662L33.9717 3.93408" stroke="currentColor"
-                                    stroke-width="7" stroke-linecap="round" stroke-linejoin="round" />
-                            </svg>
-                            }
-                        </button>
-                        } @else {
-                        <button class="button-save"
-                            [ngClass]="{ 'active': isEdited && isFormValid, 'disabled': !isEdited || !isFormValid }"
-                            type="submit" [disabled]="!isEdited || !isFormValid">
-                            Save
-                            @if (isEdited && isFormValid) {
-                            <svg class="icon-done" width="38" height="30" viewBox="0 0 38 30" fill="none"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path d="M4.02832 15.0001L15.2571 26.0662L33.9717 3.93408" stroke="currentColor"
-                                    stroke-width="7" stroke-linecap="round" stroke-linejoin="round" />
-                            </svg>
-                            }
-                        </button>
-                        }
-                    </div>
-                </form>
-            </div>
-        </div>
+<div 
+  class="dialog-overlay" 
+  (click)="onOverlayClick()">
+  <div
+    class="dialog-content"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="contact-dialog-title"
+    [class.animate-in]="animateIn"
+    [class.animate-out]="animateOut"
+    (click)="$event.stopPropagation()"
+  >
+    <div class="dialog-left">
+      <div class="mobile-close">
+        <button
+          type="button"
+          (click)="onOverlayClick()"
+          class="close-button"
+        >
+          <img src="./assets/icons/kanban/close_white.svg" alt="Close Icon" />
+        </button>
+      </div>
+      <img src="./assets/icons/navbar/logo.svg" alt="Join Logo" class="logo" />
+      @if (contactName) {
+      <h2 id="contact-dialog-title">Edit contact</h2>
+      <div class="underline"></div>
+      } @else {
+      <h2 id="contact-dialog-title">Add contact</h2>
+      <span>Tasks are better with a team!</span>
+      <div class="underline"></div>
+      }
     </div>
+    <div class="dialog-right">
+      <div class="close-icon">
+        <button
+          type="button"
+          (click)="onOverlayClick()"
+          class="close-button"
+        >
+          <img src="./assets/icons/kanban/close.svg" alt="Close Icon" />
+        </button>
+      </div>
+      <div class="form-wrapper">
+        <div class="profile-ring">
+          @if (contactIndex != undefined && this.contactsService.contacts[contactIndex]) {
+          <div
+            class="profile-placeholder"
+            [style.backgroundColor]="this.contactsService.contacts[contactIndex].color"
+          >
+            <div class="contact-initials">
+              {{ this.contactsService.contacts[contactIndex].name.charAt(0).toUpperCase() }}
+              {{ this.contactsService.lastInitial(contactIndex) }}
+            </div>
+          </div>
+          } @else {
+          <div class="profile-placeholder">
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <mask
+                id="mask0_305797_887"
+                style="mask-type:alpha"
+                maskUnits="userSpaceOnUse"
+                x="0"
+                y="0"
+                width="24"
+                height="24"
+              >
+                <rect width="24" height="24" fill="#D9D9D9" />
+              </mask>
+              <g mask="url(#mask0_305797_887)">
+                <path
+                  d="M12 12C10.9 12 9.95833 11.6083 9.175 10.825C8.39167 10.0417 8 9.1 8 8C8 6.9 8.39167 5.95833 9.175 5.175C9.95833 4.39167 10.9 4 12 4C13.1 4 14.0417 4.39167 14.825 5.175C15.6083 5.95833 16 6.9 16 8C16 9.1 15.6083 10.0417 14.825 10.825C14.0417 11.6083 13.1 12 12 12ZM18 20H6C5.45 20 4.97917 19.8042 4.5875 19.4125C4.19583 19.0208 4 18.55 4 18V17.2C4 16.6333 4.14583 16.1125 4.4375 15.6375C4.72917 15.1625 5.11667 14.8 5.6 14.55C6.63333 14.0333 7.68333 13.6458 8.75 13.3875C9.81667 13.1292 10.9 13 12 13C13.1 13 14.1833 13.1292 15.25 13.3875C16.3167 13.6458 17.3667 14.0333 18.4 14.55C18.8833 14.8 19.2708 15.1625 19.5625 15.6375C19.8542 16.1125 20 16.6333 20 17.2V18C20 18.55 19.8042 19.0208 19.4125 19.4125C19.0208 19.8042 18.55 20 18 20ZM6 18H18V17.2C18 17.0167 17.9542 16.85 17.8625 16.7C17.7708 16.55 17.65 16.4333 17.5 16.35C16.6 15.9 15.6917 15.5625 14.775 15.3375C13.8583 15.1125 12.9333 15 12 15C11.0667 15 10.1417 15.1125 9.225 15.3375C8.30833 15.5625 7.4 15.9 6.5 16.35C6.35 16.4333 6.22917 16.55 6.1375 16.7C6.04583 16.85 6 17.0167 6 17.2V18ZM12 10C12.55 10 13.0208 9.80417 13.4125 9.4125C13.8042 9.02083 14 8.55 14 8C14 7.45 13.8042 6.97917 13.4125 6.5875C13.0208 6.19583 12.55 6 12 6C11.45 6 10.9792 6.19583 10.5875 6.5875C10.1958 6.97917 10 7.45 10 8C10 8.55 10.1958 9.02083 10.5875 9.4125C10.9792 9.80417 11.45 10 12 10Z"
+                  fill="#FFFFFF"
+                />
+              </g>
+            </svg>
+          </div>
+          }
+        </div>
+        <form (ngSubmit)="onCreate(contactIndex, contactForm)" #contactForm="ngForm">
+          <div class="input-wrapper">
+            <input
+              type="text"
+              placeholder="Name"
+              aria-label="Name"
+              [(ngModel)]="contactData.name"
+              name="name"
+              required
+              (ngModelChange)="validateLive('name', contactForm)"
+              #name="ngModel"
+              [class.invalid]="name.invalid && name.touched || nameExists"
+            />
+            <img src="./assets/icons/contacts/contact_name.svg" alt="Name Icon" />
+            <span class="error">
+              @if (name.touched && name.invalid && name.errors?.['required']) {
+              Please enter your name!
+              } @else if (name.touched && name.errors?.['invalidFullName']) {
+              Please enter a first and last name!
+              } @else if (name.touched && name.errors?.['invalidCharacters']) {
+              Only letters, spaces, hyphens and apostrophes are allowed!
+              } @else if (nameExists) {
+              A contact with this name already exists!
+              } @else {
+              &nbsp;
+              }
+            </span>
+          </div>
+          <div class="input-wrapper">
+            <input
+              type="email"
+              placeholder="Email"
+              aria-label="Email address"
+              [(ngModel)]="contactData.mail"
+              name="mail"
+              required
+              pattern="^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$"
+              (ngModelChange)="validateLive('mail', contactForm)"
+              email
+              #mail="ngModel"
+              [class.invalid]="mail.invalid && mail.touched || mailExists"
+            />
+            <img src="./assets/icons/contacts/contact_mail.svg" alt="Mail Icon" />
+            <span class="error">
+              @if (mail.touched && mail.errors?.['required']) {
+              Please enter your email address!
+              } @else if (mail.touched && mail.errors?.['pattern']) {
+              This is not a valid email address!
+              } @else if (mailExists) {
+              A contact with this email already exists!
+              } @else {
+              &nbsp;
+              }
+            </span>
+          </div>
+          <div class="input-wrapper">
+            <input
+              type="tel"
+              name="phone"
+              placeholder="Phone"
+              aria-label="Phone number"
+              required
+              [(ngModel)]="contactData.phone"
+              #phone="ngModel"
+              (focus)="focusNumbers()"
+              (blur)="resetNumb()"
+              pattern="^(\+|00)?\d[\d\s\/\-]{4,}$"
+              inputmode="numeric"
+              [class.invalid]="phone.invalid && phone.touched"
+              (keypress)="onlyNumbers($event)"
+            />
+            <img src="./assets/icons/contacts/contact_phone.svg" alt="Phone Icon" />
+            <span class="error">
+              @if (phone.touched && phone.errors?.['required']) {
+              Please enter your phone number!
+              } @else {
+              &nbsp;
+              }
+            </span>
+          </div>
+          <div class="buttons">
+            @if (contactIndex == undefined) {
+            <button class="button-cancel" type="button" (click)="onCancel()">
+              Cancel
+              <svg
+                class="icon-cancel"
+                width="14"
+                height="14"
+                viewBox="0 0 14 14"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M7.14434 8.40005L2.24434 13.3C2.061 13.4834 1.82767 13.575 1.54434 13.575C1.261 13.575 1.02767 13.4834 0.844336 13.3C0.661003 13.1167 0.569336 12.8834 0.569336 12.6C0.569336 12.3167 0.661003 12.0834 0.844336 11.9L5.74434 7.00005L0.844336 2.10005C0.661003 1.91672 0.569336 1.68338 0.569336 1.40005C0.569336 1.11672 0.661003 0.883382 0.844336 0.700049C1.02767 0.516715 1.261 0.425049 1.54434 0.425049C1.82767 0.425049 2.061 0.516715 2.24434 0.700049L7.14434 5.60005L12.0443 0.700049C12.2277 0.516715 12.461 0.425049 12.7443 0.425049C13.0277 0.425049 13.261 0.516715 13.4443 0.700049C13.6277 0.883382 13.7193 1.11672 13.7193 1.40005C13.7193 1.68338 13.6277 1.91672 13.4443 2.10005L8.54434 7.00005L13.4443 11.9C13.6277 12.0834 13.7193 12.3167 13.7193 12.6C13.7193 12.8834 13.6277 13.1167 13.4443 13.3C13.261 13.4834 13.0277 13.575 12.7443 13.575C12.461 13.575 12.2277 13.4834 12.0443 13.3L7.14434 8.40005Z"
+                  fill="#2A3647"
+                />
+              </svg>
+            </button>
+            } @else {
+            <button class="button-delete" type="button" (click)="onDelete()">
+              Delete
+            </button>
+            }
+            @if (contactIndex == undefined) {
+            <button
+              class="button-create"
+              type="submit"
+              [ngClass]="{'active': isFormValid,'checkmark': isCheckmarkVisible && !isFormValid,'disabled': !isCheckmarkVisible && !isFormValid}"
+              [disabled]="!isFormValid"
+            >
+              Create contact
+              @if (isCheckmarkVisible || isFormValid) {
+              <svg
+                class="icon-done"
+                width="38"
+                height="30"
+                viewBox="0 0 38 30"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M4.02832 15.0001L15.2571 26.0662L33.9717 3.93408"
+                  stroke="currentColor"
+                  stroke-width="7"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+              }
+            </button>
+            } @else {
+            <button
+              class="button-save"
+              [ngClass]="{ 'active': isEdited && isFormValid, 'disabled': !isEdited || !isFormValid }"
+              type="submit"
+              [disabled]="!isEdited || !isFormValid"
+            >
+              Save
+              @if (isEdited && isFormValid) {
+              <svg
+                class="icon-done"
+                width="38"
+                height="30"
+                viewBox="0 0 38 30"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M4.02832 15.0001L15.2571 26.0662L33.9717 3.93408"
+                  stroke="currentColor"
+                  stroke-width="7"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+              }
+            </button>
+            }
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 </div>
