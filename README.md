@@ -1,3 +1,7 @@
+Note: Active development continues in this repository:
+https://github.com/TerrorDackel/Join
+
+
 # Join – Task Management App
 
 Team-based Kanban board for managing tasks, developed as a group project during the Developer Akademie frontend program. Users can register, log in and organize tasks across multiple status columns.
